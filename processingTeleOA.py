@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font
 import re
 
+# 去除冗余信息的正则表达式
 re1 = r'\/.+?(?=[\s;]|$)'
 
 def find_the_first_not_none_value_upward(ws, row, column):
@@ -11,27 +12,45 @@ def find_the_first_not_none_value_upward(ws, row, column):
 		if ws[column + str(i)].value is not None:
 			return ws[column + str(i)]
 
+# 电信公司OA对账文件
 filename = '17Q1.xlsx'
+
+# 核对账期 4位年份2位季度
+checkTime = '201704'
+# 核对账号类型
+accounttype = '电信OA'
 
 wb = load_workbook(filename = filename)
 
 try:
-    ws = wb['test']
+    ws = wb[checkTime]
     wb.remove(ws)
 except KeyError as e:
-    print ('no sheet test:' + e.__str__())
+    print ('No sheet test:' + e.__str__())
 
-# 创建临时表单
+# 创建对账表单
+wb.create_sheet(checkTime)
+wsc = wb[checkTime]
 
-wb.create_sheet('test')
-wst = wb['test']
+# 写入标题行
+# 序号	部门	姓名	账号	账号类型	对账时间
+wsc["A1"] = "序号"
+wsc["B1"] = "部门"
+wsc["C1"] = "姓名"
+wsc["D1"] = "账号"
+wsc["E1"] = "账号类型"
+wsc["F1"] = "对账时间"
 
-wst["A1"] = "部门"
-wst["A1"].font = Font(bold=True)
-wst["B1"] = "成员"
-wst["B1"].font = Font(bold=True)
-trow = 2
+# 标题行黑体
+wsc["A1"].font = Font(bold=True)
+wsc["B1"].font = Font(bold=True)
+wsc["C1"].font = Font(bold=True)
+wsc["D1"].font = Font(bold=True)
+wsc["E1"].font = Font(bold=True)
+wsc["F1"].font = Font(bold=True)
 
+# 当前行号
+currentRow = 2
 
 ws = wb['部门信息']
 
@@ -52,13 +71,22 @@ for row in ws.rows:
 				usersStr= re.sub(r'\d', '', usersStr)
 				usersStr= re.sub('_', '', usersStr)
 				if usersStr != "None" and departName not in ["工会", "团委", "财务处", "党委", "公司领导"]:
+
+					# todo 部门名称改为台账系统部门名称
+
 					users = usersStr.split(';')
 					for user in users:
-						wst["A" + str(trow)] = departName
-						wst["B" + str(trow)] = user
-						trow += 1
-					# print (replace)
+						rowStr = str(currentRow)
+
+						wsc["A" + rowStr] = str(currentRow - 1)
+						wsc["B" + rowStr] = departName
+						wsc["C" + rowStr] = user
+						wsc["D" + rowStr] = ''
+						wsc["E" + rowStr] = accounttype
+						wsc["F" + rowStr] = checkTime
+
+						currentRow += 1
 wb.active = 2
 wb.save(filename)
 
-print ("Total " + str(trow - 2) + " employees.")
+print ("Total " + str(currentRow - 2) + " employees.")
