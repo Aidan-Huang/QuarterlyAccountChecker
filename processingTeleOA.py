@@ -7,6 +7,7 @@ import re
 # 去除冗余信息的正则表达式
 re1 = r'\/.+?(?=[\s;]|$)'
 
+# 向上找第一个非空单元格
 def find_the_first_not_none_value_upward(ws, row, column):
 	for i in range(row - 1, 1, -1):
 		if ws[column + str(i)].value is not None:
@@ -33,24 +34,30 @@ def change_teleDept_to_idealDept(teleDept):
 
 
 # 电信公司OA对账文件
-filename = '17Q1.xlsx'
+FILE_NAME = '17Q4.xlsx'
 
 # 核对账期 4位年份2位季度
-checkTime = '201704'
+CHECK_TIME = '201704'
+
+# 核对结果表单位置
+RESULT_SHEET_NUMBER = 2
+
 # 核对账号类型
-accounttype = '电信OA账号'
+ACCOUNT_TYPE = '电信OA账号'
 
-wb = load_workbook(filename = filename)
+# 加载文件
+wb = load_workbook(filename = FILE_NAME)
 
+# 若对账结果表单则先删除
 try:
-    ws = wb[checkTime]
+    ws = wb[CHECK_TIME]
     wb.remove(ws)
 except KeyError as e:
     print ('No sheet test:' + e.__str__())
 
-# 创建对账表单
-wb.create_sheet(checkTime)
-wsc = wb[checkTime]
+# 创建对账结果表单
+wb.create_sheet(CHECK_TIME)
+wsc = wb[CHECK_TIME]
 
 # 写入标题行
 # 序号	部门	姓名	账号	账号类型	对账时间
@@ -102,11 +109,12 @@ for row in ws.rows:
 						wsc["B" + rowStr] = departName
 						wsc["C" + rowStr] = user
 						wsc["D" + rowStr] = ''
-						wsc["E" + rowStr] = accounttype
-						wsc["F" + rowStr] = checkTime
+						wsc["E" + rowStr] = ACCOUNT_TYPE
+						wsc["F" + rowStr] = CHECK_TIME
 
 						currentRow += 1
-wb.active = 2
-wb.save(filename)
+
+wb.active = RESULT_SHEET_NUMBER
+wb.save(FILE_NAME)
 
 print ("Total " + str(currentRow - 2) + " employees.")
