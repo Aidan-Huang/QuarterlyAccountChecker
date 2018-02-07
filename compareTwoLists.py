@@ -13,14 +13,14 @@ def find_row_count_at_column(sheet, row, column):
             count += 1
 
 # 数列写入Excel行
-def list_to_row(list, sheet, row, column):
-    for i in range(0, list(list).__len__()):
-        sheet.cell(row=row, column=column + i).value = list[i]
+def list_to_row(data, sheet, row, column):
+    for i in range(0, list(data).__len__()):
+        sheet.cell(row=row, column=column + i).value = data[i]
 
 # 读取Excel行至数列
 def row_to_list(sheet, row, column, count):
     resList = []
-    for i in range(column, column + count + 1):
+    for i in range(column, column + count):
         resList.append(sheet.cell(row=row, column=i).value)
     return resList
 
@@ -121,12 +121,16 @@ for key in srcDict.copy():
 
         count_same += 1
 
-        for j in range(1, COUNT_ALL + 1):
-            wsr.cell(row=currentRow, column=j).value = srcDict[key][j-1]
+        # for j in range(1, COUNT_ALL + 1):
+            # wsr.cell(row=currentRow, column=j).value = srcDict[key][j-1]
+
+        list_to_row(srcDict[key], wsr, currentRow, COLUMN_SRC)
 
 
-        for j in range(COLUMN_DES, COLUMN_END):
-            wsr.cell(row=currentRow, column=j).value = desDict[key][j-COLUMN_DES]
+        # for j in range(COLUMN_DES, COLUMN_END):
+        #     wsr.cell(row=currentRow, column=j).value = desDict[key][j-COLUMN_DES]
+
+        list_to_row(desDict[key], wsr, currentRow, COLUMN_DES)
 
 
         del srcDict[key]
@@ -143,13 +147,18 @@ currentRow += 1
 
 for key in srcDict.keys():
 
-    for j in range(1, COUNT_ALL + 1):
-        wsr.cell(row=currentRow, column=j).value = srcDict[key][j-1]
+    # for j in range(1, COUNT_ALL + 1):
+    #     wsr.cell(row=currentRow, column=j).value = srcDict[key][j-1]
+
+    list_to_row(srcDict[key], wsr, currentRow, COLUMN_SRC)
+
     currentRow += 1
 
 for key in desDict.keys():
-    for j in range(COLUMN_DES, COLUMN_END):
-        wsr.cell(row=currentRow, column=j).value = desDict[key][j-COLUMN_DES]
+    # for j in range(COLUMN_DES, COLUMN_END):
+    #     wsr.cell(row=currentRow, column=j).value = desDict[key][j-COLUMN_DES]
+
+    list_to_row(desDict[key], wsr, currentRow, COLUMN_DES)
 
     currentRow += 1
 
