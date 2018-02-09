@@ -21,7 +21,7 @@ def list_to_row(data, sheet, row, column):
 def row_to_list(sheet, row, column, count):
     resList = []
     for i in range(column, column + count):
-        resList.append(str(sheet.cell(row=row, column=i).value).strip())
+        resList.append(str(sheet.cell(row=row, column=i).value).strip().lower())
     return resList
 
 # 比较文件
@@ -117,13 +117,14 @@ print ("There are " + str(desDict.__len__()) + " records can't find in src")
 
 if IS_LOOP_COMPARE:
     for i in range(COUNT_KEY-1, 0, -1):
+        # 重置相同数据数
         count_same = 0
-        # print (i)
+
+        # 分隔提示写入目标页
         wsr.cell(row=currentRow, column=COLUMN_SRC).value = "以下数据前" + str(i) + "列" + "相同"
         wsr.cell(row=currentRow, column=COLUMN_SRC).font = Font(bold=True, color=colors.RED)
         currentRow += 1
 
-        # 循环源数据字典，在对比数据字典中找到相同的，则拷贝到新的结果页，同时在源数据字典和目标数据字典中都删除
         # 重建源数据、目标数据字典，减少一最后一列值
         for key in srcDict.copy():
             keyList = key.split(DIV_CHAR)
@@ -155,6 +156,7 @@ if IS_LOOP_COMPARE:
         print("Compare first " + str(i) + " columns: There are " + str(srcDict.__len__()) + " records can't find in des")
         print("Compare first " + str(i) + " columns: There are " + str(desDict.__len__()) + " records can't find in src")
 
+# 分隔提示写入目标页
 wsr.cell(row=currentRow, column=COLUMN_SRC).value = "完全差异数据"
 wsr.cell(row=currentRow, column=COLUMN_SRC).font = Font(bold=True, color=colors.RED)
 currentRow += 1

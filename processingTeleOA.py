@@ -34,7 +34,7 @@ def change_teleDept_to_idealDept(teleDept):
 
 
 # 电信公司OA对账文件
-FILE_NAME = '17Q4.xlsx'
+FILE_NAME = '17Q3.xlsx'
 
 # 核对账期 4位年份2位季度
 CHECK_TIME = '201704'
