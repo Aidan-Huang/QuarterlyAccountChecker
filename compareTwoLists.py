@@ -25,7 +25,7 @@ def row_to_list(sheet, row, column, count):
     return resList
 
 # 比较文件
-FILE_NAME = 'q1.xlsx'
+FILE_NAME = 'q4.xlsx'
 # 源表单名称
 SRC_SHEET_NAME = 'Sheet1'
 # 比较结果表单
@@ -37,7 +37,9 @@ FIRST_LINE = 2
 # 总数据列数
 COUNT_ALL = 4
 # 关键字列数
-COUNT_KEY = 2
+COUNT_KEY = 3
+# 是否循环比较
+IS_LOOP_COMPARE = True
 # 源列号
 COLUMN_SRC = 1
 # 目标列号 总数据列加1再加上1个分隔列
@@ -113,9 +115,48 @@ print ("There are " + str(count_same) + " same records")
 print ("There are " + str(srcDict.__len__()) + " records can't find in des")
 print ("There are " + str(desDict.__len__()) + " records can't find in src")
 
-wsr.cell(row=currentRow, column=COLUMN_SRC).value = "差异数据"
-wsr.cell(row=currentRow, column=COLUMN_SRC).font = Font(bold=True, color=colors.RED)
+if IS_LOOP_COMPARE:
+    for i in range(COUNT_KEY-1, 0, -1):
+        count_same = 0
+        # print (i)
+        wsr.cell(row=currentRow, column=COLUMN_SRC).value = "以下数据前" + str(i) + "列" + "相同"
+        wsr.cell(row=currentRow, column=COLUMN_SRC).font = Font(bold=True, color=colors.RED)
+        currentRow += 1
 
+        # 循环源数据字典，在对比数据字典中找到相同的，则拷贝到新的结果页，同时在源数据字典和目标数据字典中都删除
+        # 重建源数据、目标数据字典，减少一最后一列值
+        for key in srcDict.copy():
+            keyList = key.split(DIV_CHAR)
+            del keyList[-1]
+            srcDict[DIV_CHAR.join(keyList)] = srcDict[key]
+            del srcDict[key]
+
+        for key in desDict.copy():
+            keyList = key.split(DIV_CHAR)
+            del keyList[-1]
+            desDict[DIV_CHAR.join(keyList)] = desDict[key]
+            del desDict[key]
+
+        # 循环源数据字典，在对比数据字典中找到相同的，则拷贝到新的结果页，同时在源数据字典和目标数据字典中都删除
+        for key in srcDict.copy():
+            if key in desDict.keys():
+                # 相同数据数加1
+                count_same += 1
+                # 相同数据写入目标页
+                list_to_row(srcDict[key], wsr, currentRow, COLUMN_SRC)
+                list_to_row(desDict[key], wsr, currentRow, COLUMN_DES)
+                # 源数据、目标数据字典内去除相同数据
+                del srcDict[key]
+                del desDict[key]
+
+                currentRow += 1
+
+        print("Compare first " + str(i) + " columns: There are " + str(count_same) + " same records")
+        print("Compare first " + str(i) + " columns: There are " + str(srcDict.__len__()) + " records can't find in des")
+        print("Compare first " + str(i) + " columns: There are " + str(desDict.__len__()) + " records can't find in src")
+
+wsr.cell(row=currentRow, column=COLUMN_SRC).value = "完全差异数据"
+wsr.cell(row=currentRow, column=COLUMN_SRC).font = Font(bold=True, color=colors.RED)
 currentRow += 1
 
 for key in srcDict.keys():
